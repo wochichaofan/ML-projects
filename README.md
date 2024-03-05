@@ -1,2 +1,3 @@
 # my_little_mla
-Here i will prectice my ML skills. Some Kaggle, some theory
+Here i will upload my ML projects. Some Kaggle, some theory, some hand-made models.
+Almost no practical use, only pure funnn
