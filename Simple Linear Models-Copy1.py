@@ -18,7 +18,7 @@ class Regression:
         Learning_rate, defines a step
         
     training_mode: str, default = 'GD'
-        Choose a training algorythm. Now 3 kinds are realized: stochastic gradient descent, RMSPRop, Nesterov ADA.
+        Choose a training algorythm. Now 3 kinds are realized: stochastic gradient descent, RMSPRop, Nesterov ADAM (NADAM).
 
     max_iter: int, default = 1000
         Parameter that defines number of maximum iterations of optimization.
@@ -39,6 +39,7 @@ class Regression:
         
     def fit(self, X, y):
         """
+        Ez Peeze:
         Defines cost function. Fits the model. Saves coefficients. 
         
         Parameters
@@ -49,7 +50,7 @@ class Regression:
             Target value to predict
         """
         # defining a loss function
-        self.define_cost()
+        self._define_cost()
         
         self.X = np.column_stack([X, np.ones((X.shape[0]))])
         self.y = y
@@ -60,7 +61,6 @@ class Regression:
         
     def _train(self):
         """
-        Здесь:
         1) Choose optimization algorythm
         2) Enacts choosen algorythm
         """
@@ -74,22 +74,37 @@ class Regression:
         
     def predict(self, X):
         """
-        Predicts the target value
+        Predicts the target value based on learned weights.
 
         Parameters
         -------------------------
         X: matrix, df slice or array-like
-            Data value array-like.
+            Data-values. Works both for 1-D array or n-D array (inf > n > inf)
+
         """
-        return self.predict_func(X)
+        return self._predict_func(X)
 
     def score(self, X, y):
-        return self.score_func(X, y)
+        """
+        Scores the efficiency (accuracy) of the model based on adequate loss function
+        Parameters
+        -------------------------
+        X: matrix, df slice or array-like
+            Data-values. Works both for 1-D array or n-D array (inf > n > inf)   
+        y: array-like values
+            Target value to predict
+        """
+        return self._score_func(X, y)
     
     def _gradient_descent(self, coef):
         """
-        """
+        Runs a stochastic gradient descent algorythm.
         
+        Parameters
+        -------------------------
+        coef: 1-D array the same size as X
+            Predicted weights
+        """
         for i in range(self._n):
             old_coef = coef
             coef = old_coef - self.lr * self.cost_func(self.X, self.y, old_coef)
@@ -100,6 +115,14 @@ class Regression:
         return (coef[:-1], coef[-1])
         
     def _nesterov(self, coef):
+        """
+        Runs a Nesterov ADAM (NADAM) algorythm.
+        
+        Parameters
+        -------------------------
+        coef: 1-D array the same size as X
+            Predicted weights
+        """
         Vt = np.zeros(self.X.shape[1])
 
         for i in range(self._n):
@@ -114,7 +137,15 @@ class Regression:
         
         return (coef[:-1], coef[-1])
         
-    def _RMSProp(self, coef):
+    def _RMSProp(self, coef):        
+        """
+        Runs an RMSProp algorythm.
+        
+        Parameters
+        -------------------------
+        coef: 1-D array the same size as X
+            Predicted weights
+        """
         Egt = 0
 
         for i in range(self._n):
@@ -130,41 +161,53 @@ class Regression:
         return (coef[:-1], coef[-1])
 
 class LinearRegression(Regression):
-    def define_cost(self):
+    """
+    Basic Linear Regression.
+    """
+    def _define_cost(self):
         
         def grad_mse(X, y, w):
+            """ gradient of loss function for linear regression """
             yproba = X @ w
             return 2/len(X)*(y - yproba) @ (-X)
 
         self.cost_func = grad_mse
         
-    def predict_func(self, X):
+    def _predict_func(self, X):
+        """ 
+        Prediction function
+        y = w0 + w1 * X
+        """
         return X @ self.coef_ + self.intercept_
     
-    def score_func(self, X, y):
+    def _score_func(self, X, y):
         yproba = X @ self.coef_
         return np.average((y - yproba) ** 2)
     
     
-class LogisticRegression(Regression):
-    def define_cost(self):
+class LogisticRegression(Regression):    
+    """
+    Basic Logistic Regression.
+    """
+    def _define_cost(self):
         
         def grad_logloss(X, y, w):
+            """ gradient of loss function for logistic regression """
             yproba = self.sigmoid(X @ w)
             return X.T @ (yproba - y)
         
         self.cost_func = grad_logloss
     
-    def predict_func(self, X):
+    def _predict_func(self, X):
         yproba = self.sigmoid(X @ self.coef_)
         yhat = np.where(yproba >= 0.5, 1, 0)
         return yhat
     
-    def score_func(self, X, y):
+    def _score_func(self, X, y):
         yproba = self.sigmoid(X @ self.coef_)
         return -np.sum(y * np.log(yproba + 1e-30) + (1 - y) * np.log(1 - yproba + 1e-30))
     
     @staticmethod
     def sigmoid(x):
         return 1 / (1 + np.exp(-x.astype(float)))
-
+        
