@@ -1,0 +1,4 @@
+#1 Make a dir-based structure for different projects
+#2 Add netology homeworks
+#3 Create Tree-based model
+#4 Solve and upload some cases
