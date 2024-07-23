@@ -1,0 +1,2 @@
+HW#1 add homework projects on classic ML models
+HW#2 clear projects, translate to english
