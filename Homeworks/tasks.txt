@@ -1,2 +1,4 @@
 HW#1 [x] add homework projects on classic ML models
+HW#1.1 [_] correct and check all ipynb files
+
 HW#2 [_] clear projects, translate to english
